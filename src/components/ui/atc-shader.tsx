@@ -8,15 +8,15 @@ precision highp float;
 layout(location=0) in vec2 a_pos;
 void main(){ gl_Position = vec4(a_pos,0.0,1.0); }`
 
-const fragSrc = `#version 300 es
-precision highp float;
+// Mobile-optimized fragment shader
+const fragSrcMobile = `#version 300 es
+precision mediump float;
 out vec4 fragColor;
 
 uniform vec2  u_res;
 uniform float u_time;
 
-// robust tanh fallback
-float tanh1(float x){ float e = exp(2.0*x); return (e-1.0)/(e+1.0); }
+float tanh1(float x){ float e = exp(clamp(2.0*x, -8.0, 8.0)); return (e-1.0)/(e+1.0); }
 vec4 tanh4(vec4 v){ return vec4(tanh1(v.x), tanh1(v.y), tanh1(v.z), tanh1(v.w)); }
 
 void main(){
@@ -25,8 +25,43 @@ void main(){
   float t = u_time;
 
   vec4 o = vec4(0.0);
+  vec3 p = vec3(0.0);
+  vec3 v = vec3(1.0, 2.0, 6.0);
+  float i = 0.0, z = 1.0, d = 1.0, f = 1.0;
 
-  // === your code with safe inits & valid mat2 multiply, tanh replacement ===
+  for ( ; i++ < 3e1;
+        o.rgb += (cos((p.x + z + v) * 0.1) + 1.0) / d / f / z )
+  {
+    p = z * normalize(FC * 2.0 - r.xyy);
+    vec4 m = cos((p + sin(p)).y * 0.4 + vec4(0.0, 33.0, 11.0, 0.0));
+    p.xz = mat2(m) * p.xz;
+    p.x += t / 0.2;
+    z += ( d = length(cos(p / v) * v + v.zxx / 7.0) /
+           ( f = 2.0 + d / exp(clamp(p.y * 0.2, -4.0, 4.0)) ) );
+  }
+
+  o = tanh4(0.2 * o);
+  o.a = 1.0;
+  fragColor = o;
+}`
+
+// Desktop fragment shader
+const fragSrcDesktop = `#version 300 es
+precision mediump float;
+out vec4 fragColor;
+
+uniform vec2  u_res;
+uniform float u_time;
+
+float tanh1(float x){ float e = exp(clamp(2.0*x, -10.0, 10.0)); return (e-1.0)/(e+1.0); }
+vec4 tanh4(vec4 v){ return vec4(tanh1(v.x), tanh1(v.y), tanh1(v.z), tanh1(v.w)); }
+
+void main(){
+  vec3 FC = vec3(gl_FragCoord.xy, 0.0);
+  vec3 r  = vec3(u_res, max(u_res.x, u_res.y));
+  float t = u_time;
+
+  vec4 o = vec4(0.0);
   vec3 p = vec3(0.0);
   vec3 v = vec3(1.0, 2.0, 6.0);
   float i = 0.0, z = 1.0, d = 1.0, f = 1.0;
@@ -35,14 +70,11 @@ void main(){
         o.rgb += (cos((p.x + z + v) * 0.1) + 1.0) / d / f / z )
   {
     p = z * normalize(FC * 2.0 - r.xyy);
-
     vec4 m = cos((p + sin(p)).y * 0.4 + vec4(0.0, 33.0, 11.0, 0.0));
     p.xz = mat2(m) * p.xz;
-
     p.x += t / 0.2;
-
     z += ( d = length(cos(p / v) * v + v.zxx / 7.0) /
-           ( f = 2.0 + d / exp(p.y * 0.2) ) );
+           ( f = 2.0 + d / exp(clamp(p.y * 0.2, -5.0, 5.0)) ) );
   }
 
   o = tanh4(0.2 * o);
@@ -56,7 +88,19 @@ export default function ShaderDemo_ATC(){
 
   useEffect(() => {
     const canvas = ref.current!, pre = preRef.current!
-    const gl = canvas.getContext("webgl2", { premultipliedAlpha:false })
+    
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                     window.innerWidth < 768
+    
+    const gl = canvas.getContext("webgl2", { 
+      premultipliedAlpha: false,
+      antialias: true,
+      powerPreference: "high-performance",
+      alpha: false,
+      depth: false,
+      stencil: false
+    })
     if (!gl) { pre.textContent = "WebGL2 not available"; return }
 
     const compile = (type:number, src:string) => {
@@ -76,7 +120,9 @@ export default function ShaderDemo_ATC(){
     }
 
     let prog: WebGLProgram
-    try { prog = link(vertSrc, fragSrc) }
+    try { 
+      prog = link(vertSrc, isMobile ? fragSrcMobile : fragSrcDesktop)
+    }
     catch(e:any){ (pre.textContent as any) = "Shader error:\n"+e.message; return }
 
     gl.useProgram(prog)
@@ -92,10 +138,22 @@ export default function ShaderDemo_ATC(){
     const uTime = gl.getUniformLocation(prog, "u_time")
 
     const resize = () => {
-      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1))
+      let dpr = window.devicePixelRatio || 1
+      
+      if (isMobile) {
+        // Better mobile resolution - not too aggressive
+        dpr = Math.min(1.25, dpr * 0.85)
+      } else {
+        // Desktop resolution
+        dpr = Math.max(1.0, Math.min(1.5, dpr))
+      }
+      
       const w = Math.floor((canvas.clientWidth||window.innerWidth)*dpr)
       const h = Math.floor((canvas.clientHeight||window.innerHeight)*dpr)
-      if (canvas.width!==w || canvas.height!==h){ canvas.width=w; canvas.height=h }
+      if (canvas.width!==w || canvas.height!==h){ 
+        canvas.width=w
+        canvas.height=h
+      }
       gl.viewport(0,0,w,h)
       gl.uniform2f(uRes, w, h)
     }
@@ -105,7 +163,11 @@ export default function ShaderDemo_ATC(){
 
     let raf = 0
     const t0 = performance.now()
+    let isRunning = true
+    
     const draw = () => {
+      if (!isRunning) return
+      
       const t = (performance.now()-t0)/1000
       gl.uniform1f(uTime, t)
       gl.clear(gl.COLOR_BUFFER_BIT)
@@ -114,12 +176,48 @@ export default function ShaderDemo_ATC(){
     }
     draw()
 
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize) }
+    // Prevent pause on scroll/touch events
+    const preventPause = (e: Event) => {
+      e.preventDefault?.()
+    }
+    
+    canvas.addEventListener('touchstart', preventPause, {passive: false})
+    canvas.addEventListener('touchmove', preventPause, {passive: false})
+    
+    // Handle visibility change
+    const handleVisibility = () => {
+      if (document.hidden) {
+        isRunning = false
+        cancelAnimationFrame(raf)
+      } else {
+        isRunning = true
+        draw()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => { 
+      isRunning = false
+      cancelAnimationFrame(raf)
+      window.removeEventListener("resize", onResize)
+      canvas.removeEventListener('touchstart', preventPause)
+      canvas.removeEventListener('touchmove', preventPause)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [])
 
   return (
-    <div style={{position:"relative"}}>
-      <canvas ref={ref} style={{ width:"100%", height:"100vh", display:"block", background:"#000" }} />
+    <div style={{position:"relative", touchAction: "none"}}>
+      <canvas 
+        ref={ref} 
+        style={{ 
+          width:"100%", 
+          height:"100vh", 
+          display:"block", 
+          background:"#000",
+          touchAction: "none"
+        }} 
+      />
       <pre ref={preRef} style={{position:"absolute",top:8,left:8,color:"#0f0",whiteSpace:"pre-wrap"}}/>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, FileText, Eye, TriangleAlert, AlertCircle, Loader2 } from "lucide-react";
+import { Download, FileText, Eye, TriangleAlert, AlertCircle, Loader2, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { api, EncryptionUtils, type DropResponse, type FileInfo } from "@/lib/api";
+import { formatFileSize } from "@/lib/zip-utils";
 
 const Pickup = () => {
   const [code, setCode] = useState("");
@@ -177,13 +178,6 @@ const Pickup = () => {
     }
   };
 
-  const formatSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -245,36 +239,80 @@ const Pickup = () => {
               ) : (
                 <div className="space-y-6">
                   <Card className="p-6">
-                    <h3 className="font-semibold mb-4 text-white">Available Files</h3>
-                    <div className="space-y-3">
-                      {files.map((file, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-4 rounded-lg bg-secondary"
-                        >
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-white/60" />
+                    <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                      {dropData?.manifest?.meta?.is_zip ? (
+                        <>
+                          <Archive className="w-5 h-5" />
+                          ZIP Archive
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="w-5 h-5" />
+                          Available File
+                        </>
+                      )}
+                    </h3>
+                    
+                    {dropData?.manifest?.meta?.is_zip && dropData?.manifest?.meta?.original_files ? (
+                      <div className="space-y-3">
+                        <div className="p-4 rounded-lg bg-secondary">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Archive className="w-6 h-6 text-white/60" />
                             <div>
-                              <p className="font-medium text-white">{file.name}</p>
+                              <p className="font-medium text-white">
+                                {dropData.manifest.meta.filename}
+                              </p>
                               <p className="text-xs text-white/60">
-                                {formatSize(file.size)}
+                                ZIP Archive • {formatFileSize(dropData.manifest.meta.size)}
                               </p>
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setPreviewFile(file);
-                              setPreviewOpen(true);
-                            }}
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Preview
-                          </Button>
+                          <div className="mt-3">
+                            <p className="text-sm text-white/70 mb-2">
+                              Contains {dropData.manifest.meta.original_files.length} files:
+                            </p>
+                            <div className="space-y-1 max-h-32 overflow-y-auto">
+                              {dropData.manifest.meta.original_files.map((file, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-xs text-white/60">
+                                  <span className="truncate flex-1 mr-2">{file.name}</span>
+                                  <span>{formatFileSize(file.size)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {files.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-4 rounded-lg bg-secondary"
+                          >
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-white/60" />
+                              <div>
+                                <p className="font-medium text-white">{file.name}</p>
+                                <p className="text-xs text-white/60">
+                                  {formatFileSize(file.size)}
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setPreviewFile(file);
+                                setPreviewOpen(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              Preview
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </Card>
 
                   {countdown !== null && (
@@ -320,7 +358,8 @@ const Pickup = () => {
                       className="flex-1 bg-gradient-pickup hover:opacity-90"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      {isDownloading ? "Downloading..." : "Download All"}
+                      {isDownloading ? "Downloading..." : 
+                       dropData?.manifest?.meta?.is_zip ? "Download ZIP" : "Download File"}
                     </Button>
                   </div>
                 </div>
