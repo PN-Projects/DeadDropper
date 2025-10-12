@@ -1,6 +1,6 @@
 # DeadDropper
 
-[![DeadDropper Logo](Deaddropper_image.png)](https://deaddropper.web.app)
+[![DeadDropper Logo](public/Deaddropper_image.png)](https://deaddropper.web.app)
 
 **"Drop it. Encrypt it. Forget it."**
 
