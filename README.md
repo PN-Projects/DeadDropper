@@ -1,10 +1,14 @@
 # DeadDropper
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 [![DeadDropper Logo](Deaddropper_image.png)](https://deaddropper.web.app)
 =======
 [![DeadDropper Logo](public/Deaddropper_image.png)](https://deaddropper.web.app)
 >>>>>>> 9816296a143049de4624e1fdf1aa5c69bc6d1a06
+=======
+[![DeadDropper Logo](public/Deaddropper_image.png)](https://deaddropper.web.app)
+>>>>>>> e6d31dfc9ee41c9659712e27e057fd4d49de4cb0
 
 **"Drop it. Encrypt it. Forget it."**
 
@@ -223,7 +227,11 @@ If you have any questions or need help, please open an issue or contact [@Panoti
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 **Privacy is not a feature. It's a fundamental right.**
 =======
 **Privacy is not a feature. It's a fundamental right.**
 >>>>>>> 9816296a143049de4624e1fdf1aa5c69bc6d1a06
+=======
+**Privacy is not a feature. It's a fundamental right.**
+>>>>>>> e6d31dfc9ee41c9659712e27e057fd4d49de4cb0
