@@ -42,7 +42,7 @@ const Vision = () => {
     },
     {
       icon: <Crown className="w-8 h-8" />,
-      title: "Wormhole Pro",
+      title: "DeadDropper+",
       description:
         "Premium tier features: longer expiration times (up to 7 days), higher download counts (share with teams), larger file limits (up to 50GB), priority support, and custom branding options for businesses. Privacy still guaranteed.",
       status: "In Design",
