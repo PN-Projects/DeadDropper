@@ -208,7 +208,7 @@ We welcome contributions! Please feel free to submit a Pull Request. For major c
 
 ## 📞 **Support**
 
-If you have any questions or need help, please open an issue or contact [@PanotiProgrammer](https://github.com/shwrmaa).
+If you have any questions or need help, please open an issue or contact [@shwrmaa](https://github.com/shwrmaa).
 
 ---
 
