@@ -113,7 +113,7 @@ This project is developed by [Anand](https://github.com/shwrmaa) and is part of 
 - **Anand** - [@shwrmaa](https://github.com/shwrmaa)
 
 ### **Maintainer & Contributor:**
-- **shwrmaa** - [github.com/PanotiProgrammer](https://github.com/shwrmaa)
+- **shwrmaa** - [github.com/shwrmaa](https://github.com/shwrmaa)
 
 Feel free to explore the codebase, report issues, or suggest improvements.
 
@@ -208,7 +208,7 @@ We welcome contributions! Please feel free to submit a Pull Request. For major c
 
 ## 📞 **Support**
 
-If you have any questions or need help, please open an issue or contact [@PanotiProgrammer](https://github.com/PanotiProgrammer).
+If you have any questions or need help, please open an issue or contact [@PanotiProgrammer](https://github.com/shwrmaa).
 
 ---
 
