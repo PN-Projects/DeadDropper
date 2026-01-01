@@ -107,13 +107,13 @@ DeadDropper's core value is security and privacy. Here's how it's achieved:
 
 ## 🛠️ **Development & Contribution**
 
-This project is developed by [Anand](https://github.com/PanotiProgrammer) and is part of the PN Projects initiative.
+This project is developed by [Anand](https://github.com/shwrmaa) and is part of the PN Projects initiative.
 
 ### **Developer:**
-- **Anand** - [@PanotiProgrammer](https://github.com/PanotiProgrammer)
+- **Anand** - [@shwrmaa](https://github.com/shwrmaa)
 
 ### **Maintainer & Contributor:**
-- **PanotiProgrammer** - [github.com/PanotiProgrammer](https://github.com/PanotiProgrammer)
+- **shwrmaa** - [github.com/PanotiProgrammer](https://github.com/shwrmaa)
 
 Feel free to explore the codebase, report issues, or suggest improvements.
 
@@ -214,7 +214,7 @@ If you have any questions or need help, please open an issue or contact [@Panoti
 
 ## 🌟 **Acknowledgments**
 
-- Built with ❤️ by [Anand](https://github.com/PanotiProgrammer)
+- Built with ❤️ by [Anand](https://github.com/shwrmaa)
 - Part of the PN Projects initiative
 - Inspired by the need for truly private file sharing
 
